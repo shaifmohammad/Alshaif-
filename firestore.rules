@@ -1,0 +1,105 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users
+// Document ID: {userId}
+// Fields:
+//   - uid: string (required)
+//   - name: string (required)
+//   - email: string (required)
+//   - role: string (required, enum: ['admin', 'user'])
+//   - permissions: map (optional) { add: bool, edit: bool, delete: bool }
+//
+// Collection: customers
+// Document ID: {customerId}
+// Fields:
+//   - name: string (required)
+//   - phone: string (optional)
+//   - created_at: timestamp (required)
+//   - user_id: string (required)
+//
+// Collection: transactions
+// Document ID: {transactionId}
+// Fields:
+//   - customer_id: string (required)
+//   - unit_price: number (optional)
+//   - total_amount: number (required)
+//   - paid_amount: number (required)
+//   - remaining_amount: number (required)
+//   - due_date: timestamp (optional)
+//   - created_at: timestamp (required)
+//   - user_id: string (required)
+//
+// Collection: payments
+// Document ID: {paymentId}
+// Fields:
+//   - transaction_id: string (required)
+//   - amount: number (required)
+//   - date: timestamp (required)
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (getUserData().role == 'admin' ||
+         (request.auth.token.email == "salshaif901@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function hasPermission(action) {
+      let data = getUserData();
+      return isAdmin() || (data.role == 'user' && data.permissions[action] == true);
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow update: if isAdmin();
+    }
+
+    match /customers/{customerId} {
+      allow read: if isAuthenticated();
+      allow create: if hasPermission('add');
+      allow update: if hasPermission('edit');
+      allow delete: if hasPermission('delete');
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated();
+      allow create: if hasPermission('add');
+      allow update: if hasPermission('edit');
+      allow delete: if hasPermission('delete');
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated();
+      allow create: if hasPermission('add');
+      allow update: if hasPermission('edit');
+      allow delete: if hasPermission('delete');
+    }
+  }
+}

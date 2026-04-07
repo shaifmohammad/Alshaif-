@@ -1,0 +1,23 @@
+{
+  "name": "برهوم للمياه النقية",
+  "short_name": "برهوم",
+  "description": "نظام متكامل لإدارة العملاء والعمليات المالية والمستخدمين لشركة برهوم للمياه النقية.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/water/192/192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://picsum.photos/seed/water/512/512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

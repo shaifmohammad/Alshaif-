@@ -1,0 +1,84 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System user with specific roles and permissions",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "user"] },
+        "permissions": { 
+          "type": "object",
+          "properties": {
+            "add": { "type": "boolean" },
+            "edit": { "type": "boolean" },
+            "delete": { "type": "boolean" }
+          }
+        }
+      },
+      "required": ["uid", "name", "email", "role"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Client information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "user_id": { "type": "string" }
+      },
+      "required": ["name", "user_id"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial operation for a customer",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customer_id": { "type": "string" },
+        "unit_price": { "type": "number" },
+        "total_amount": { "type": "number" },
+        "paid_amount": { "type": "number" },
+        "remaining_amount": { "type": "number" },
+        "due_date": { "type": "string", "format": "date-time" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "user_id": { "type": "string" }
+      },
+      "required": ["customer_id", "total_amount", "paid_amount", "user_id"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Payment record for a transaction",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "transaction_id": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string", "format": "date-time" }
+      },
+      "required": ["transaction_id", "amount", "date"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/customers/{customerId}": {
+      "schema": "Customer",
+      "description": "Customer records"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Financial transactions"
+    },
+    "/payments/{paymentId}": {
+      "schema": "Payment",
+      "description": "Payment history"
+    }
+  }
+}
